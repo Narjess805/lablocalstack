@@ -1,0 +1,17 @@
+{ 
+  "Rules": [ 
+    { 
+      "ID": "DeleteOldLogs", 
+      "Status": "Enabled", 
+      "Filter": { 
+        "Prefix": "" 
+      }, 
+      "Expiration": { 
+        "Days": 30 
+      }, 
+      "NoncurrentVersionExpiration": { 
+        "NoncurrentDays": 7 
+      } 
+    } 
+  ] 
+} 

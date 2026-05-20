@@ -1,0 +1,50 @@
+awslocal sqs get-queue-attributes --queue-url %LOYALTY_QUEUE_URL% --attribute-names ApproximateNumberOfMessages --query Attributes.ApproximateNumberOfMessages --output text
+awslocal sqs get-queue-attributes --queue-url %MANAGER_QUEUE_URL% --attribute-names ApproximateNumberOfMessages --query Attributes.ApproximateNumberOfMessages --output text
+awslocal sqs receive-message --queue-url %MANAGER_QUEUE_URL% --max-number-of-messages 1 --message-attribute-names All --wait-time-seconds 5
+mkdir -p ~/lecafe-iac && cd ~/lecafe-iac
+mkdir lecafe-iac
+cd lecafe-iac
+notepad lecafe-stack.yaml
+awslocal cloudformation validate-template --template-body file://lecafe-stack.yaml
+dir
+notepad lecafe-stack.yaml
+awslocal cloudformation validate-template --template-body file://lecafe-stack.yaml
+awslocal cloudformation create-stack --stack-name lecafe-stack --template-body file://lecafe-stack.yaml --parameters ParameterKey=EnvironmentName,ParameterValue=development ParameterKey=LogRetentionDays,ParameterValue=30 ParameterKey=OrderQueueVisibilityTimeout,ParameterValue=30 --capabilities CAPABILITY_NAMED_IAM
+awslocal cloudformation describe-stack-events --stack-name lecafe-stack --query "StackEvents[*].{Time:Timestamp,Resource:LogicalResourceId,Status:ResourceStatus}" --output table
+awslocal cloudformation describe-stacks --stack-name lecafe-stack --query "Stacks[0].StackStatus" --output text
+awslocal cloudformation describe-stacks --stack-name lecafe-stack --query "Stacks[0].Outputs[*].{Key:OutputKey,Value:OutputValue}" --output table
+set TOPIC_ARN=arn:aws:sns:us-east-1:000000000000:lecafe-orders-topic-development
+awslocal sns publish --topic-arn %TOPIC_ARN% --message "{\"orderId\":\"ORD-200\",\"table\":5,\"items\":[{\"product\":\"Cold Brew\",\"quantity\":8,\"price\":4.00}],\"totalAmount\":32.00}" --message-attributes "{\"Priority\":{\"DataType\":\"String\",\"StringValue\":\"high\"}}" --subject "New Le Cafe Order"
+echo "=== Inventory Queue ===" && awslocal sqs get-queue-attributes --queue-url http://sqs.us-east-1.localhost.localstack.cloud:4566/000000000000/lecafe-inventory-updates-development --attribute-names ApproximateNumberOfMessages --query Attributes.ApproximateNumberOfMessages --output text
+echo "=== Loyalty Queue ===" && awslocal sqs get-queue-attributes --queue-url http://sqs.us-east-1.localhost.localstack.cloud:4566/000000000000/lecafe-loyalty-points-development --attribute-names ApproximateNumberOfMessages --query Attributes.ApproximateNumberOfMessages --output text
+echo "=== Manager Queue ===" && awslocal sqs get-queue-attributes --queue-url http://sqs.us-east-1.localhost.localstack.cloud:4566/000000000000/lecafe-manager-alerts-development --attribute-names ApproximateNumberOfMessages --query Attributes.ApproximateNumberOfMessages --output text
+awslocal sns list-subscriptions-by-topic --topic-arn %TOPIC_ARN% --query "Subscriptions[?contains(Endpoint,'manager')].{Arn:SubscriptionArn,Endpoint:Endpoint,FilterPolicy:FilterPolicy}" --output table
+awslocal sns set-subscription-attributes --subscription-arn "arn:aws:sns:us-east-1:000000000000:lecafe-orders-topic-development:???Remplacer par l'ARN???" --attribute-name FilterPolicy --attribute-value "{\"Priority\":[\"high\"]}"
+awslocal sns list-subscriptions-by-topic --topic-arn %TOPIC_ARN% --query "Subscriptions[?contains(Endpoint,'manager')].SubscriptionArn" --output textawslocal sns list-subscriptions-by-topic --topic-arn %TOPIC_ARN% --query "Subscriptions[?contains(Endpoint,'manager')].SubscriptionArn" --output textawslocal sns list-subscriptions-by-topic --topic-arn %TOPIC_ARN% --query "Subscriptions[?contains(Endpoint,'manager')].SubscriptionArn" --output textawslocal sns list-subscriptions-by-topic --topic-arn %TOPIC_ARN% --query "Subscriptions[?contains(Endpoint,'manager')].SubscriptionArn" --output text
+awslocal sns set-subscription-attributes --subscription-arn "arn:aws:sns:us-east-1:000000000000:lecafe-orders-topic-development:VOTRE_ARN_ICI" --attribute-name FilterPolicy --attribute-value "{\"Priority\":[\"high\"]}"
+awslocal sns get-subscription-attributes --subscription-arn "arn:aws:sns:us-east-1:000000000000:lecafe-orders-topic-development:VOTRE_ARN_ICI" --query "Attributes.FilterPolicy" --output text
+awslocal sns list-subscriptions-by-topic --topic-arn %TOPIC_ARN%
+awslocal sns set-subscription-attributes --subscription-arn "arn:aws:sns:us-east-1:000000000000:lecafe-orders-topic-development:06e14521-61ef-40ff-b905-198d22821793" --attribute-name FilterPolicy --attribute-value "{\"Priority\":[\"high\"]}"
+awslocal sns get-subscription-attributes --subscription-arn "arn:aws:sns:us-east-1:000000000000:lecafe-orders-topic-development:06e14521-61ef-40ff-b905-198d22821793" --query "Attributes.FilterPolicy" --output text
+awslocal sqs purge-queue --queue-url http://sqs.us-east-1.localhost.localstack.cloud:4566/000000000000/lecafe-inventory-updates-development
+awslocal sqs purge-queue --queue-url http://sqs.us-east-1.localhost.localstack.cloud:4566/000000000000/lecafe-loyalty-points-development
+awslocal sqs purge-queue --queue-url http://sqs.us-east-1.localhost.localstack.cloud:4566/000000000000/lecafe-manager-alerts-development
+awslocal sns publish --topic-arn %TOPIC_ARN% --message "{\"orderId\":\"ORD-HIGH-1\",\"table\":1,\"items\":[{\"product\":\"Latte\",\"quantity\":2,\"price\":3.50}],\"totalAmount\":7.00}" --message-attributes "{\"Priority\":{\"DataType\":\"String\",\"StringValue\":\"high\"}}" --subject "High Priority Order"
+awslocal sns publish --topic-arn %TOPIC_ARN% --message "{\"orderId\":\"ORD-NORMAL-1\",\"table\":2,\"items\":[{\"product\":\"Coffee\",\"quantity\":1,\"price\":2.00}],\"totalAmount\":2.00}" --message-attributes "{\"Priority\":{\"DataType\":\"String\",\"StringValue\":\"normal\"}}" --subject "Normal Priority Order"
+echo "=== Inventory Queue (devrait avoir 2) ===" && awslocal sqs get-queue-attributes --queue-url http://sqs.us-east-1.localhost.localstack.cloud:4566/000000000000/lecafe-inventory-updates-development --attribute-names ApproximateNumberOfMessages --query Attributes.ApproximateNumberOfMessages --output text
+echo "=== Loyalty Queue (devrait avoir 2) ===" && awslocal sqs get-queue-attributes --queue-url http://sqs.us-east-1.localhost.localstack.cloud:4566/000000000000/lecafe-loyalty-points-development --attribute-names ApproximateNumberOfMessages --query Attributes.ApproximateNumberOfMessages --output text
+echo "=== Manager Queue (devrait avoir 1 - seulement HIGH) ===" && awslocal sqs get-queue-attributes --queue-url http://sqs.us-east-1.localhost.localstack.cloud:4566/000000000000/lecafe-manager-alerts-development --attribute-names ApproximateNumberOfMessages --query Attributes.ApproximateNumberOfMessages --output text
+cd C:\Users\DELL\Desktop\AWS Cloud Services
+mkdir aws-labs-completed
+cd aws-labs-completed
+mkdir lab1-iam
+mkdir lab2-s3
+mkdir lab3-ec2
+mkdir lab4-sqs-sns
+mkdir lab5-cloudformation
+copy ..\lecafe-iac\lecafe-stack.yaml lab5-cloudformation\
+copy ..\*.json lab1-iam\
+copy ..\*.txt lab1-iam\
+notepad README.md
+cd C:\Users\DELL\Desktop\AWS Cloud Services
+doskey /history > all-commands.txt

@@ -1,0 +1,21 @@
+{
+    "Messages": [
+        {
+            "MessageId": "8490728d-428a-49bc-9e02-39c19951aed2",
+            "ReceiptHandle": "NGQ4ZjM1NjctYmY3MS00ODg0LThlMWItNGZmODYwYmVmNzI1IGFybjphd3M6c3FzOnVzLWVhc3QtMTowMDAwMDAwMDAwMDA6bGVjYWZlLWtpdGNoZW4tb3JkZXJzIDg0OTA3MjhkLTQyOGEtNDliYy05ZTAyLTM5YzE5OTUxYWVkMiAxNzc5MzEzMTI1LjY4NTc5NDQ=",
+            "MD5OfBody": "48b47b4da619892b1431202930139f98",
+            "Body": "{\"orderId\":\"ORD-002\",\"table\":7,\"items\":[{\"product\":\"Espresso\",\"quantity\":2,\"price\":2.50}],\"totalAmount\":5.00,\"timestamp\":\"2026-03-30T09:16:00Z\"}",
+            "MD5OfMessageAttributes": "d037ee46a9ac4743b7cd3e2a855b0615",
+            "MessageAttributes": {
+                "OrderType": {
+                    "StringValue": "dine-in",
+                    "DataType": "String"
+                },
+                "Priority": {
+                    "StringValue": "normal",
+                    "DataType": "String"
+                }
+            }
+        }
+    ]
+}

@@ -1,0 +1,27 @@
+{ 
+  "Version": "2012-10-17", 
+  "Statement": [ 
+    { 
+      "Sid": "AllowS3AssetRead", 
+      "Effect": "Allow", 
+      "Action": [ 
+        "s3:GetObject", 
+        "s3:ListBucket" 
+      ], 
+      "Resource": [ 
+        "arn:aws:s3:::lecafe-assets", 
+        "arn:aws:s3:::lecafe-assets/*" 
+      ] 
+    }, 
+    { 
+      "Sid": "AllowSQSOrderWrite", 
+      "Effect": "Allow", 
+      "Action": [ 
+        "sqs:SendMessage", 
+        "sqs:GetQueueUrl", 
+        "sqs:GetQueueAttributes" 
+      ], 
+      "Resource": "arn:aws:sqs:us-east-1:000000000000:lecafe-orders" 
+    } 
+  ] 
+} 
